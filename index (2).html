@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTake</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .article-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+        .logo-img {
+            height: 48px; /* Adjust height as needed */
+        }
+        .viewpoint-header {
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        .viewpoint-header:hover {
+            color: #3b82f6;
+        }
+        .viewpoint-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        .viewpoint-content.active {
+            max-height: 200px; /* A value larger than the max content height */
+            transition: max-height 0.4s ease-in;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <!-- Logo from user-provided image -->
+            <img class="logo-img" src="https://placehold.co/150x50/3B82F6/ffffff?text=MyTake+Logo" alt="MyTake Logo with two intertwined arrows and a speech bubble">
+            <nav class="hidden md:flex space-x-6">
+                <a href="#articles" class="text-gray-600 hover:text-gray-900 font-medium transition duration-300">Articles</a>
+                <a href="#contact" class="text-gray-600 hover:text-gray-900 font-medium transition duration-300">Contact</a>
+            </nav>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white mt-2 px-4 py-2">
+            <a href="#articles" class="block py-2 text-gray-600 hover:text-gray-900 transition duration-300">Articles</a>
+            <a href="#contact" class="block py-2 text-gray-600 hover:text-gray-900 transition duration-300">Contact</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 md:py-12">
+        <section id="articles" class="mb-12">
+            <h2 class="text-4xl font-extrabold text-center text-gray-900 mb-8">Today's Articles</h2>
+            <div id="articles-container" class="space-y-12">
+                <!-- Articles will be generated here by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for full article content -->
+    <div id="article-modal" class="modal">
+        <div class="modal-content w-full">
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition duration-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h3 id="modal-title" class="text-2xl font-semibold mb-4"></h3>
+            <p id="modal-content" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-8">
+                <h3 class="text-xl font-bold mb-4">Meet the Co-Founders</h3>
+                <div class="flex flex-col md:flex-row justify-center items-center md:space-x-8 space-y-6 md:space-y-0">
+                    <!-- Founder 1 -->
+                    <div class="flex flex-col items-center">
+                        <img class="w-24 h-24 rounded-full mb-2" src="https://media.licdn.com/dms/image/v2/D4D03AQFdYbTu5t1eIQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1725534405180?e=1761782400&v=beta&t=9XX2OBeDU1eebdrcN9EApJKaqAbY8c0s0PSZqhy7Pnc" alt="Profile of Aaditya Goyal">
+                        <p class="font-semibold text-lg">Aaditya Goyal</p>
+                    </div>
+                    <!-- Founder 2 -->
+                    <div class="flex flex-col items-center">
+                        <img class="w-24 h-24 rounded-full mb-2" src="https://media.licdn.com/dms/image/v2/D4E03AQH1hTm4fCqMbQ/profile-displayphoto-shrink_400_400/B4EZUdqt9YG0Ao-/0/1739959493139?e=1761782400&v=beta&t=DY_0sFry6-W_EqIAPOViI8ekyxJzn3TTgt3yQBGIxZo" alt="Profile of Yuvraj Sharma">
+                        <p class="font-semibold text-lg">Yuvraj Sharma</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <a href="mailto:mytake.2601@gmail.com" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-md transform hover:scale-105">
+                    Contact Us
+                </a>
+            </div>
+            <p class="text-sm text-gray-400">&copy; 2025 MyTake. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const articles = [
+                {
+                    title: "The Shifting Landscape of Remote Work",
+                    mainContent: "Examining the latest data and trends as hybrid models become the norm, and what this means for company culture, productivity, and employee well-being in 2025 and beyond.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "Recent data confirms that remote and hybrid work offer significant benefits, including greater flexibility and work-life balance, which are crucial for employee happiness and mental health. This trend also democratizes the workforce by creating more opportunities for individuals with disabilities or those in rural areas. However, there is a risk of exacerbating digital inequalities if companies don't provide adequate support for home office setups and reliable internet access." },
+                        { viewpoint: "Centrist", content: "The data from 2025 shows a clear shift toward hybrid models as the most practical solution. Companies are leveraging AI tools for project management and communication, while still maintaining smaller, decentralized office hubs for in-person collaboration. This approach balances the benefits of remote flexibility with the need for face-to-face interaction to foster innovation and team cohesion. It's not a one-size-fits-all solution but a pragmatic evolution of the workplace." },
+                        { viewpoint: "Right", content: "While some flexibility is a new reality, the long-term impact on productivity and company culture remains a concern. Without direct supervision and organic team interactions, there is a risk of reduced innovation and a decline in institutional knowledge transfer. The focus should be on performance-based metrics rather than hours logged, with companies using advanced monitoring and security protocols to ensure accountability and data integrity. A return to the office, even a partial one, is vital for fostering the core values and mission of an organization." }
+                    ],
+                    fullContent: "The remote work revolution, initially spurred by the pandemic, has solidified its place as a permanent fixture in the modern economy. New data from 2025 reveals that the number of remote jobs has more than tripled since 2020. This shift is reshaping how companies operate, from their hiring practices to their approach to employee well-being. Hybrid models, in particular, are gaining traction as companies seek to blend the cost-saving and talent-access benefits of remote work with the collaborative advantages of in-person presence. The rise of new technologies, including AI-powered collaboration tools and virtual reality workspaces, is also changing the nature of work itself. However, this transformation brings with it new challenges, such as ensuring equitable access to technology and addressing cybersecurity risks in a decentralized environment. The debate over how to best balance these factors—productivity, culture, and flexibility—will continue to define the workplace of the future."
+                },
+                {
+                    title: "Electric Vehicles: Navigating a Crossroads",
+                    mainContent: "An analysis of the latest technological breakthroughs in EV charging and battery technology, alongside the ongoing debate about government incentives versus market-driven adoption.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "The recent developments in fast-charging technology and government incentives highlight a critical path towards a sustainable future. Government-led initiatives and subsidies are essential to making EVs affordable for a wider population and building the necessary charging infrastructure to support mass adoption. This is not just a market issue but a public good, requiring proactive policy to combat climate change and reduce urban pollution." },
+                        { viewpoint: "Centrist", content: "Recent reports show that while EV adoption is growing, it remains limited by cost and charging infrastructure. Technological innovations, such as the new high-efficiency converters, are a positive step, but they need to be scaled up with both public and private investment. A balanced approach that encourages private innovation while providing smart government incentives and regulations will be the most effective way to accelerate the transition without overburdening taxpayers or relying solely on a volatile market." },
+                        { viewpoint: "Right", content: "The market is already demonstrating its ability to innovate with breakthroughs in battery and charging technology. The focus should be on removing regulatory barriers and allowing competition to drive down costs and improve efficiency, rather than relying on mandates and subsidies. The environmental cost of battery production and disposal, as well as the strain on the power grid, must be transparently addressed. True progress will come from consumer choice and private enterprise, not from government intervention." }
+                    ],
+                    fullContent: "The electric vehicle industry is at a pivotal moment. With new data from August 2025 showing a steady increase in EV registrations across Europe, the momentum is undeniable. However, the path to mass adoption is still fraught with challenges. Recent research from institutions like IISc in India has led to the development of compact, high-efficiency charging solutions that could revolutionize the industry. This innovation, along with falling battery costs, is narrowing the price gap with internal combustion engine vehicles. At the same time, the debate over government subsidies, such as the FAME scheme in India, and the role of market forces continues to rage. The conversation is also expanding to include the broader infrastructure, with a focus on how to integrate EVs into a stable power grid and address the full lifecycle of batteries, from production to recycling."
+                },
+                {
+                    title: "AI in Education: A New Era of Learning",
+                    mainContent: "Examining the integration of AI tools in classrooms and the ongoing ethical debates around their impact on critical thinking, equity, and privacy.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "The UNESCO report from September 2025 rightly highlights that AI has the potential to democratize education by offering personalized learning experiences to every student. However, it also presents a significant risk of widening the digital divide, as access to high-speed internet and technology remains uneven globally. We must prioritize equitable access and ensure that AI tools are designed with human rights at the forefront, protecting student privacy and ensuring they augment, rather than replace, the essential role of human teachers in fostering social and emotional development." },
+                        { viewpoint: "Centrist", content: "Recent studies confirm that AI is a powerful tool for automating administrative tasks and providing data-driven insights, which can free up teachers to focus on more meaningful instruction. The key is to find the right balance, using AI as a supplement to traditional methods. As JNU's new rulebook shows, institutions are beginning to create clear policies for the responsible use of AI, ensuring it enhances, not replaces, critical thinking skills. It's a pragmatic approach that recognizes AI's potential while acknowledging the need for human oversight and ethical frameworks." },
+                        { viewpoint: "Right", content: "The over-reliance on AI in education is a dangerous trend that risks stifling students' creativity and intellectual independence. If students use AI for 'executive help'—quick, low-effort solutions—they will fail to develop the foundational problem-solving and critical thinking skills essential for the real world. The focus should be on traditional, teacher-led instruction that encourages intellectual rigor. While AI can be a tool for administrative efficiency, its role in the core learning process must be viewed with extreme caution to avoid creating a generation of dependent thinkers." }
+                    ],
+                    fullContent: "The integration of AI into education is no longer a futuristic concept but a rapidly evolving reality. From AI-powered tutors that adapt to individual learning styles to sophisticated plagiarism detection software, these tools are reshaping the educational landscape. A recent UNESCO report underscores the urgent need for a human-rights based approach to this transformation, warning that the digital divide could worsen if not addressed. Simultaneously, new research from USC indicates that while students are quick to adopt AI for simple tasks, its use for 'deep learning' is only prevalent when actively encouraged by instructors. This highlights a critical need for new pedagogical frameworks and institutional policies, as seen in the recent rulebook changes at Jawaharlal Nehru University. The ongoing debate centers on how to harness AI's power to personalize and streamline education without compromising essential human skills or creating ethical pitfalls."
+                },
+                {
+                    title: "Food Security: A Fragile Global System",
+                    mainContent: "An in-depth look at recent vulnerabilities in global food supply chains, the ongoing issue of food inflation, and innovative solutions being adopted worldwide.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "The ongoing food crises, as highlighted by the recent UN report, are a direct result of systemic inequalities and the fragility of globalized food chains. The solution is not in market forces, but in robust international cooperation and government intervention to ensure food is treated as a human right. We must invest in local farming and sustainable agriculture, not just for food security but also for climate resilience, pushing back against corporate control and political disruptions that drive up prices and create shortages for the most vulnerable populations." },
+                        { viewpoint: "Centrist", content: "The current global food price volatility necessitates a pragmatic, multi-pronged approach. Building more resilient, localized supply chains is crucial for stability, as India’s efforts to strengthen its food processing sector and support Farmer Producer Organizations show. However, completely abandoning global trade would be a mistake. The key is to balance local resilience with global access, fostering public-private partnerships to invest in technology, from supply chain monitoring to agricultural innovation, that can make the entire system more transparent and adaptable to shocks." },
+                        { viewpoint: "Right", content: "The recent trends in food inflation and supply chain disruptions prove that over-regulation and government interference stifle the free market's ability to respond to demand. The most effective way to ensure a robust food supply is through deregulation and incentivizing private enterprise to innovate. The focus should be on encouraging market competition, reducing trade barriers, and allowing farmers to respond to consumer needs without government mandates. The free market, not bureaucracy, is the most efficient mechanism for delivering affordable and abundant food." }
+                    ],
+                    fullContent: "The global food system is under immense pressure, with recent reports from the World Bank and the USDA highlighting continued food price inflation and ongoing vulnerabilities. Geopolitical conflicts and climate-related disruptions have exposed the weaknesses of a highly interconnected supply chain, leading to a renewed focus on regional self-sufficiency and resilience. India, for example, is making strides by promoting a strong domestic food processing sector and expanding its network of Farmer Producer Organizations (FPOs). This model aims to empower local producers and reduce reliance on international markets. The debate is now centered on whether this shift requires significant government investment and policy changes, or if market forces alone can drive the necessary innovation to ensure stable food access for all. As countries grapple with these challenges, the conversation is shifting from simply producing more food to building a more resilient, equitable, and sustainable system for the future."
+                },
+                {
+                    title: "Space Exploration: Public and Private Frontiers",
+                    mainContent: "An exploration of the new collaborations between government agencies like NASA and private companies like SpaceX, and the implications for the future of space travel, from commercial launches to interplanetary missions.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "The commercialization of space, while bringing new excitement, risks turning a shared human endeavor into a race for private profit. Space exploration should be a global, government-funded effort focused on pure scientific discovery, with the benefits—from satellite data to technological breakthroughs—belonging to all of humanity. The focus should be on international cooperation through agencies like the UN to ensure that space is used for peace and scientific advancement, not corporate gain or military advantage." },
+                        { viewpoint: "Centrist", content: "The new era of space exploration is most successful when it is a balanced partnership between public and private sectors. Government agencies can focus on long-term, high-risk missions like Mars exploration and deep-space science, while private companies innovate and drive down costs for commercial activities like satellite launches and space tourism. This model accelerates progress by leveraging the best of both worlds: public funding for foundational science and private-sector efficiency for commercial applications. Recent policies in India allowing for greater private participation are a perfect example of this pragmatic approach." },
+                        { viewpoint: "Right", content: "The private sector, driven by profit and competition, is proving to be far more efficient and innovative than government agencies alone. Companies like SpaceX and Blue Origin are not only lowering launch costs but also pioneering technologies like reusable rockets at a pace a bureaucracy could never match. Government involvement should be limited to providing regulatory frameworks that ensure safety and manage orbital traffic, allowing the market to lead the way in everything from space tourism to resource extraction. This is the only way to truly unlock the vast potential of the final frontier." }
+                    ],
+                    fullContent: "The landscape of space exploration has changed dramatically, with the rise of private companies transforming a field once dominated by government agencies. This new synergy has led to a rapid acceleration of technological development and a broadening of mission types, from commercial satellite deployments to plans for space tourism and asteroid mining. The Indian space sector is a prime example of this trend, with recent reforms allowing for greater private participation in a traditionally government-run domain. This shift raises important questions about the role of public and private entities. Who should fund the high-risk, long-term scientific missions? Who should set the rules for a burgeoning space economy? The answers will determine whether this new golden age of exploration is a collaborative effort for the good of all, or a commercial free-for-all."
+                },
+                {
+                    title: "The Future of Data Privacy: Security vs. Liberty",
+                    mainContent: "An examination of the global push for stricter data privacy laws, the rise of government surveillance technologies, and the ongoing tension between national security and individual rights.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "Data privacy is a fundamental human right. We must advocate for strong government regulations that protect citizens from both corporate data exploitation and state surveillance. The focus should be on ensuring digital security and anonymous online participation for all, creating a system where the default is privacy and individual control over personal information." },
+                        { viewpoint: "Centrist", content: "The most effective approach to data privacy is a balanced one. We need independent oversight bodies to ensure government agencies do not overstep their bounds while also allowing for targeted, lawful access in cases of national security. The solution lies in transparent policies and a clear distinction between necessary security measures and the unwarranted erosion of personal liberties." },
+                        { viewpoint: "Right", content: "Extensive government oversight of data is a threat to individual liberty and economic innovation. The focus should be on market-driven solutions that allow consumers to choose their level of privacy. While national security is paramount, any surveillance must be limited and clearly defined, with a preference for technology that protects citizens without compromising their constitutional freedoms. " }
+                    ],
+                    fullContent: "The digital age has brought unprecedented convenience, but it has also created a new frontier for political and social debate: data privacy. From the European Union's GDPR to new regulations proposed in the United States and India, the global community is grappling with how to protect personal information in a world where data is a primary commodity. Simultaneously, advancements in facial recognition and AI-driven surveillance technologies have fueled a heated debate over the appropriate role of government in monitoring its citizens. The core of the issue is a fundamental conflict between a government's mandate to ensure public safety and an individual's right to privacy and liberty. The policy decisions made today will have a lasting impact on how we interact with technology and with each other."
+                },
+                {
+                    title: "Climate Action: A Global Mandate or National Choice?",
+                    mainContent: "A look at the latest international climate summit, the ongoing debate over a global carbon tax, and the friction between binding international agreements and national economic interests.",
+                    subArticles: [
+                        { viewpoint: "Left", content: "The climate crisis is a global emergency that requires binding international agreements and a unified, collective response. A global carbon tax and significant government investment in renewable energy are essential to holding corporations and nations accountable and ensuring a just transition for all." },
+                        { viewpoint: "Centrist", content: "A pragmatic approach to climate action combines international cooperation with flexible national policies. Market mechanisms like carbon cap-and-trade programs are effective, but they must be paired with government incentives for clean technology and sustainable infrastructure to balance economic growth with environmental responsibility." },
+                        { viewpoint: "Right", content: "Climate policy should be a matter of national sovereignty and economic choice, not international mandates. The focus should be on technological innovation and market-driven solutions that allow individual nations to pursue their own energy strategies, protecting their economies from burdensome taxes and regulations." }
+                    ],
+                    fullContent: "The political and economic debate surrounding climate change has never been more intense. As temperatures continue to rise, so does the pressure on world leaders to take decisive action. The latest international climate summit saw a renewed push for a global carbon tax and binding emissions targets. However, many nations, prioritizing their own economic growth and energy independence, expressed reluctance to sign on to sweeping agreements. This has created a significant divide between those who see climate action as a shared, global responsibility and those who view it as a national policy choice. The conversation is not just about environmental policy but also about international relations, economic justice, and the balance of power between nations."
+                }
+            ];
+
+            const articlesContainer = document.getElementById('articles-container');
+            const articleModal = document.getElementById('article-modal');
+            const closeModalButton = document.getElementById('close-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('article');
+                articleCard.className = 'article-card bg-white p-6 rounded-xl shadow-lg';
+                
+                let subArticlesHtml = '';
+                article.subArticles.forEach((sub, index) => {
+                    // Create a clickable header for each viewpoint
+                    subArticlesHtml += `
+                        <div class="mb-4 last:mb-0">
+                            <div class="viewpoint-header flex justify-between items-center text-gray-900 font-bold mb-1">
+                                <span>${sub.viewpoint} Viewpoint</span>
+                                <!-- SVG for expand/collapse icon -->
+                                <svg class="w-5 h-5 text-gray-500 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-icon-id="icon-${index}">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                            <div class="viewpoint-content text-gray-700 text-sm pl-4">
+                                <p>${sub.content}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                articleCard.innerHTML = `
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">${article.title}</h3>
+                    <p class="text-gray-600 mb-6">${article.mainContent}</p>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        ${subArticlesHtml}
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button class="read-more-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition duration-300 shadow-md">Read More</button>
+                    </div>
+                `;
+                articlesContainer.appendChild(articleCard);
+
+                // Add event listener for the new "Read More" button
+                articleCard.querySelector('.read-more-button').addEventListener('click', () => {
+                    modalTitle.textContent = article.title;
+                    modalContent.textContent = article.fullContent;
+                    articleModal.classList.add('open');
+                });
+            });
+
+            // Close modal functionality
+            closeModalButton.addEventListener('click', () => {
+                articleModal.classList.remove('open');
+            });
+
+            // Close modal when clicking outside of it
+            window.addEventListener('click', (event) => {
+                if (event.target === articleModal) {
+                    articleModal.classList.remove('open');
+                }
+            });
+
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Interactive viewpoint functionality
+            document.querySelectorAll('.viewpoint-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('svg');
+
+                    // Toggle the 'active' class on the content to expand/collapse
+                    content.classList.toggle('active');
+
+                    // Rotate the icon to indicate state
+                    icon.classList.toggle('rotate-90');
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
